@@ -1,18 +1,26 @@
-name: Build StretchedClock (.deb)
+name: Build & Publish Sileo Repo
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "main" ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
-    name: Compile Rootless Tweak
+    name: Build Tweak & Publish Sileo Repo
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev bzip2 xz-utils zstd
 
       - name: Install Theos & Toolchain
         run: |
@@ -28,6 +36,64 @@ jobs:
           export THEOS=~/theos
           make clean
           make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+
+      - name: Generate Sileo APT Repository
+        run: |
+          mkdir -p repo/debs
+          cp packages/*.deb repo/debs/
+
+          cd repo
+          dpkg-scanpackages -m debs > Packages
+          bzip2 -k -f Packages
+          xz -k -f Packages
+          zstd -k -f Packages
+
+          cat <<EOF > Release
+          Origin: Harsed Repo
+          Label: Harsed Repo
+          Suite: stable
+          Version: 1.0
+          Codename: ios
+          Architectures: iphoneos-arm64
+          Components: main
+          Description: Harsed's Rootless Tweaks Repo
+          EOF
+
+          cat <<EOF > index.html
+          <!DOCTYPE html>
+          <html lang="ru">
+          <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>Harsed Repo</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f111a; color: #fff; text-align: center; padding: 50px 20px; }
+                  .card { max-width: 420px; margin: 0 auto; background: #1a1d2e; border-radius: 20px; padding: 35px 25px; box-shadow: 0 12px 30px rgba(0,0,0,0.6); border: 1px solid #2d3250; }
+                  h1 { margin-top: 0; color: #00f2fe; font-size: 26px; }
+                  p { color: #a0a5b8; font-size: 15px; line-height: 1.5; }
+                  .btn { display: inline-block; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; font-weight: 700; padding: 14px 28px; border-radius: 30px; text-decoration: none; margin-top: 25px; box-shadow: 0 4px 15px rgba(0,242,254,0.3); }
+              </style>
+          </head>
+          <body>
+              <div class="card">
+                  <h1>Harsed Repo</h1>
+                  <p>Личный репозиторий твиков для Dopamine Rootless (iOS 15 - 16).</p>
+                  <a class="btn" href="sileo://source/https://harsed11.github.io/StretchedClock/">➕ Добавить репозиторий в Sileo</a>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages (gh-pages branch)
+        run: |
+          cd repo
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Auto-deploy Sileo repo [skip ci]"
+          git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
 
       - name: Upload .deb Artifact
         uses: actions/upload-artifact@v4
