@@ -1,0 +1,34 @@
+name: Build StretchedClock (.deb)
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile Rootless Tweak
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Theos & iOS SDK
+        run: |
+          echo "Cloning Theos..."
+          git clone --recursive https://github.com/theos/theos.git ~/theos
+          echo "Cloning iOS SDKs..."
+          git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
+
+      - name: Build Rootless Package
+        run: |
+          export THEOS=~/theos
+          make clean
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+
+      - name: Upload .deb Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StretchedClock-rootless-deb
+          path: packages/*.deb
