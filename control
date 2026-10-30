@@ -1,9 +1,9 @@
 Package: com.harsed.stretchedclock
 Name: StretchedClock
 Depends: mobilesubstrate (>= 0.9.5000)
-Version: 1.1.0
+Version: 1.2.0
 Architecture: iphoneos-arm64
-Description: Vertically stretched lock screen clock (iOS 18 style) with adjustable width and height settings.
+Description: Vertically stretched lock screen clock (iOS 18 style). Properly repositions date above clock and adds Respring button.
 Maintainer: harsed
 Author: harsed
 Section: Tweaks

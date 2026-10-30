@@ -11,18 +11,14 @@
     </dict>
     <key>items</key>
     <array>
-
-        <!-- Заголовок -->
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
-            <string>StretchedClock</string>
+            <string>Основное</string>
             <key>footerText</key>
-            <string>Растянутые часы на экране блокировки в стиле iOS 18. После изменения настроек заблокируйте и разблокируйте телефон для применения.</string>
+            <string>Вытянутые часы экрана блокировки в стиле iOS 18. Дата аккуратно размещена над часами.</string>
         </dict>
-
-        <!-- Вкл/Выкл -->
         <dict>
             <key>cell</key>
             <string>PSSwitchCell</string>
@@ -38,17 +34,12 @@
             <string>com.harsed.stretchedclock/prefsChanged</string>
         </dict>
 
-        <!-- Группа масштаба -->
         <dict>
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
-            <string>Масштаб цифр</string>
-            <key>footerText</key>
-            <string>Ширина: 0.3 (очень узкие) – 1.2 (широкие). Высота: 1.0 (обычная) – 4.0 (максимально вытянутые).</string>
+            <string>Ширина цифр (Scale X)</string>
         </dict>
-
-        <!-- Ширина (scaleX) -->
         <dict>
             <key>cell</key>
             <string>PSSliderCell</string>
@@ -58,36 +49,57 @@
             <string>com.harsed.stretchedclock</string>
             <key>key</key>
             <string>scaleX</string>
-            <key>label</key>
-            <string>Ширина</string>
             <key>min</key>
-            <real>0.3</real>
+            <real>0.30</real>
             <key>max</key>
-            <real>1.2</real>
+            <real>1.50</real>
+            <key>showValue</key>
+            <true/>
             <key>PostNotification</key>
             <string>com.harsed.stretchedclock/prefsChanged</string>
         </dict>
 
-        <!-- Высота (scaleY) -->
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Высота цифр (Scale Y)</string>
+        </dict>
         <dict>
             <key>cell</key>
             <string>PSSliderCell</string>
             <key>default</key>
-            <real>2.0</real>
+            <real>2.00</real>
             <key>defaults</key>
             <string>com.harsed.stretchedclock</string>
             <key>key</key>
             <string>scaleY</string>
-            <key>label</key>
-            <string>Высота</string>
             <key>min</key>
-            <real>1.0</real>
+            <real>1.00</real>
             <key>max</key>
-            <real>4.0</real>
+            <real>4.00</real>
+            <key>showValue</key>
+            <true/>
             <key>PostNotification</key>
             <string>com.harsed.stretchedclock/prefsChanged</string>
         </dict>
 
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Применение изменений</string>
+            <key>footerText</key>
+            <string>Нажмите кнопку ниже, чтобы перезапустить SpringBoard и применить новые параметры.</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSButtonCell</string>
+            <key>label</key>
+            <string>⚡️ Сделать Респринг</string>
+            <key>action</key>
+            <string>respringAction</string>
+        </dict>
     </array>
 </dict>
 </plist>
