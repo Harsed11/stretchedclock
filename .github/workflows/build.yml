@@ -18,7 +18,8 @@ jobs:
         run: |
           echo "Cloning Theos..."
           git clone --recursive https://github.com/theos/theos.git ~/theos
-          echo "Cloning iOS SDKs..."
+          echo "Setting up patched iOS SDKs..."
+          rm -rf ~/theos/sdks
           git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
 
       - name: Build Rootless Package
