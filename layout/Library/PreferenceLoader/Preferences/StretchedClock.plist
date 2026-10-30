@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>entry</key>
+    <dict>
+        <key>cell</key>
+        <string>PSLinkCell</string>
+        <key>label</key>
+        <string>StretchedClock</string>
+    </dict>
+    <key>items</key>
+    <array>
+
+        <!-- Заголовок -->
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>StretchedClock</string>
+            <key>footerText</key>
+            <string>Растянутые часы на экране блокировки в стиле iOS 18. После изменения настроек заблокируйте и разблокируйте телефон для применения.</string>
+        </dict>
+
+        <!-- Вкл/Выкл -->
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>default</key>
+            <true/>
+            <key>defaults</key>
+            <string>com.harsed.stretchedclock</string>
+            <key>key</key>
+            <string>enabled</string>
+            <key>label</key>
+            <string>Включено</string>
+            <key>PostNotification</key>
+            <string>com.harsed.stretchedclock/prefsChanged</string>
+        </dict>
+
+        <!-- Группа масштаба -->
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
+            <string>Масштаб цифр</string>
+            <key>footerText</key>
+            <string>Ширина: 0.3 (очень узкие) – 1.2 (широкие). Высота: 1.0 (обычная) – 4.0 (максимально вытянутые).</string>
+        </dict>
+
+        <!-- Ширина (scaleX) -->
+        <dict>
+            <key>cell</key>
+            <string>PSSliderCell</string>
+            <key>default</key>
+            <real>0.65</real>
+            <key>defaults</key>
+            <string>com.harsed.stretchedclock</string>
+            <key>key</key>
+            <string>scaleX</string>
+            <key>label</key>
+            <string>Ширина</string>
+            <key>min</key>
+            <real>0.3</real>
+            <key>max</key>
+            <real>1.2</real>
+            <key>PostNotification</key>
+            <string>com.harsed.stretchedclock/prefsChanged</string>
+        </dict>
+
+        <!-- Высота (scaleY) -->
+        <dict>
+            <key>cell</key>
+            <string>PSSliderCell</string>
+            <key>default</key>
+            <real>2.0</real>
+            <key>defaults</key>
+            <string>com.harsed.stretchedclock</string>
+            <key>key</key>
+            <string>scaleY</string>
+            <key>label</key>
+            <string>Высота</string>
+            <key>min</key>
+            <real>1.0</real>
+            <key>max</key>
+            <real>4.0</real>
+            <key>PostNotification</key>
+            <string>com.harsed.stretchedclock/prefsChanged</string>
+        </dict>
+
+    </array>
+</dict>
+</plist>

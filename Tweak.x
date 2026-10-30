@@ -1,54 +1,75 @@
 #import <UIKit/UIKit.h>
-#import <CoreGraphics/CoreGraphics.h>
+#import <objc/runtime.h>
+#import <CoreFoundation/CoreFoundation.h>
+
+// ─── Настройки (читаются из plist, можно менять через Настройки iPhone) ───
+
+static BOOL enabled = YES;
+static CGFloat scaleX = 0.65;  // ширина цифр (0.3 – 1.2, по умолчанию 0.65)
+static CGFloat scaleY = 2.00;  // высота цифр (1.0 – 4.0, по умолчанию 2.0)
+
+static void loadPrefs() {
+    NSDictionary *prefs = [NSDictionary dictionaryWithContentsOfFile:
+        @"/var/mobile/Library/Preferences/com.harsed.stretchedclock.plist"];
+    if (prefs) {
+        if (prefs[@"enabled"])  enabled = [prefs[@"enabled"] boolValue];
+        if (prefs[@"scaleX"])   scaleX  = [prefs[@"scaleX"] floatValue];
+        if (prefs[@"scaleY"])   scaleY  = [prefs[@"scaleY"] floatValue];
+    }
+}
+
+// ─── Интерфейсы приватных классов ───
+
+@interface SBUILegibilityLabel : UIView
+@property (nonatomic, strong) UIImage *textImage;
+@end
 
 @interface SBFLockScreenDateView : UIView
-@property (nonatomic, retain) UIView *timeLabel;
+@property (nonatomic, strong) SBUILegibilityLabel *timeLabel;
 @end
+
+// ─── Хук экрана блокировки ───
 
 %hook SBFLockScreenDateView
 
 - (void)layoutSubviews {
     %orig;
 
-    // Снимаем ограничение обрезки (clipsToBounds) у себя и родительских вью,
-    // чтобы длинные цифры не обрезались по краям контейнера
-    UIView *parent = self;
-    for (int i = 0; i < 4 && parent != nil; i++) {
-        parent.clipsToBounds = NO;
-        parent = parent.superview;
+    if (!enabled) return;
+
+    // Получаем вью с временем (SBUILegibilityLabel)
+    UIView *timeLabel = nil;
+    @try {
+        timeLabel = [self valueForKey:@"_timeLabel"];
+    } @catch (NSException *e) {
+        return;
     }
+    if (!timeLabel) return;
 
-    UIView *label = nil;
-    if ([self respondsToSelector:@selector(timeLabel)]) {
-        label = [self timeLabel];
-    }
-    if (!label) {
-        @try {
-            label = [self valueForKey:@"_timeLabel"];
-        } @catch (NSException *e) {}
-    }
+    // Применяем масштабирование.
+    // CGAffineTransformMakeScale масштабирует вокруг центра вью,
+    // поэтому позиция не съезжает и не нужно двигать центр вручную.
+    timeLabel.transform = CGAffineTransformMakeScale(scaleX, scaleY);
 
-    if (label) {
-        label.clipsToBounds = NO;
-
-        // Сбрасываем предыдущую трансформацию для точного замера исходного положения
-        label.transform = CGAffineTransformIdentity;
-        CGRect origFrame = label.frame;
-
-        // Коэффициенты трансформации:
-        // scaleX = 0.80 (делаем цифры более узкими/condensed)
-        // scaleY = 2.50 (вытягиваем по высоте в 2.5 раза)
-        CGFloat scaleX = 0.80;
-        CGFloat scaleY = 2.50;
-
-        label.transform = CGAffineTransformMakeScale(scaleX, scaleY);
-
-        // При масштабировании центр вью остается на месте, из-за чего верх улетел бы вверх.
-        // Смещаем центр вниз так, чтобы верхний край цифр оставался строго под строкой даты:
-        CGPoint newCenter = label.center;
-        newCenter.y = origFrame.origin.y + (origFrame.size.height * scaleY) / 2.0;
-        label.center = newCenter;
-    }
+    // Отключаем обрезку, чтобы вытянутые цифры не обрезались
+    self.clipsToBounds = NO;
+    timeLabel.clipsToBounds = NO;
 }
 
 %end
+
+// ─── Инициализация ───
+
+%ctor {
+    loadPrefs();
+
+    // Слушаем уведомление от PreferenceLoader при изменении настроек
+    CFNotificationCenterAddObserver(
+        CFNotificationCenterGetDarwinNotifyCenter(),
+        NULL,
+        (CFNotificationCallback)loadPrefs,
+        CFSTR("com.harsed.stretchedclock/prefsChanged"),
+        NULL,
+        CFNotificationSuspensionBehaviorDeliverImmediately
+    );
+}
