@@ -3,6 +3,7 @@ name: Build & Publish Sileo Repo
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   workflow_dispatch:
 
 permissions:
@@ -52,7 +53,7 @@ jobs:
           Origin: Harsed Repo
           Label: Harsed Repo
           Suite: stable
-          Version: 1.0
+          Version: 1.1.0
           Codename: ios
           Architectures: iphoneos-arm64
           Components: main
@@ -100,3 +101,15 @@ jobs:
         with:
           name: StretchedClock-rootless-deb
           path: packages/*.deb
+
+      - name: Create / Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/*.deb
+          tag_name: v1.1.0
+          name: StretchedClock v1.1.0
+          body: |
+            ### Что нового в v1.1.0:
+            - 🛠 Исправлен баг со смещением и размножением цифр.
+            - ⚙️ Добавлена панель настроек в Настройки iPhone (слайдеры ширины и высоты).
+            - 📱 Поддержка Dopamine Rootless iOS 15.0 - 16.6.1.
