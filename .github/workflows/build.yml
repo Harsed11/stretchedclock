@@ -8,17 +8,18 @@ on:
 jobs:
   build:
     name: Compile Rootless Tweak
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Theos & iOS SDK
+      - name: Install Theos & Toolchain
         run: |
-          echo "Cloning Theos..."
-          git clone --recursive https://github.com/theos/theos.git ~/theos
-          echo "Setting up patched iOS SDKs..."
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+
+      - name: Setup Patched iOS SDKs
+        run: |
           rm -rf ~/theos/sdks
           git clone --depth=1 https://github.com/theos/sdks.git ~/theos/sdks
 
